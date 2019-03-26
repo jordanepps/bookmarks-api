@@ -13,6 +13,29 @@ app.use(morgan(morganOption));
 app.use(cors());
 app.use(helmet());
 
+app.get('/bookmarks', (req, res, next) => {
+	const knexInstance = req.app.get('db');
+	ArticlesService.getAllArticles(knexInstance)
+		.then(bookmarks => {
+			res.json(articles);
+		})
+		.catch(next);
+});
+
+app.get('/bookmarks/:bookmark_id', (req, res, next) => {
+	const knexInstance = req.app.get('db');
+	ArticlesService.getById(knexInstance, req.params.bookmark_id)
+		.then(bookmark => {
+			if (!bookmark) {
+				return res.status(404).json({
+					error: { message: `Bookmark doesn't exist` }
+				});
+			}
+			res.json(article);
+		})
+		.catch(next);
+});
+
 app.get('/', (req, res) => {
 	res.send('Hello, boilerplate!');
 });
