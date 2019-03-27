@@ -5,6 +5,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
 
+const bookmarkRouter = require('./bookmarks/bookmarks-router');
+
 const app = express();
 
 const morganOption = NODE_ENV === 'production' ? 'tiny' : 'common';
@@ -13,28 +15,7 @@ app.use(morgan(morganOption));
 app.use(cors());
 app.use(helmet());
 
-app.get('/bookmarks', (req, res, next) => {
-	const knexInstance = req.app.get('db');
-	ArticlesService.getAllArticles(knexInstance)
-		.then(bookmarks => {
-			res.json(articles);
-		})
-		.catch(next);
-});
-
-app.get('/bookmarks/:bookmark_id', (req, res, next) => {
-	const knexInstance = req.app.get('db');
-	ArticlesService.getById(knexInstance, req.params.bookmark_id)
-		.then(bookmark => {
-			if (!bookmark) {
-				return res.status(404).json({
-					error: { message: `Bookmark doesn't exist` }
-				});
-			}
-			res.json(article);
-		})
-		.catch(next);
-});
+app.use('/bookmarks', bookmarkRouter);
 
 app.get('/', (req, res) => {
 	res.send('Hello, boilerplate!');

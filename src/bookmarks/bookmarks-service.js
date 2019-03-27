@@ -1,5 +1,5 @@
-const ArticlesService = {
-	getAllArticles(knex) {
+const BookmarkService = {
+	getAllBookmarks(knex) {
 		return knex('bookmark_links').select('*');
 	},
 	getById(knex, id) {
@@ -8,7 +8,7 @@ const ArticlesService = {
 			.where({ id })
 			.first();
 	},
-	insertArticle(knex, newLink) {
+	insertBookmark(knex, newLink) {
 		return knex('bookmark_links')
 			.insert(newLink)
 			.returning('*')
@@ -16,16 +16,16 @@ const ArticlesService = {
 				return rows[0];
 			});
 	},
-	updateArticle(knex, id, newLinksFields) {
+	updateBookmark(knex, id, newLinksFields) {
 		return knex('bookmark_links')
 			.where({ id })
 			.update(newLinksFields);
 	},
-	deleteArticle(knex, id) {
+	deleteBookmark(knex, id) {
 		return knex('bookmark_links')
 			.where({ id })
 			.delete();
 	}
 };
 
-module.exports = ArticlesService;
+module.exports = BookmarkService;
