@@ -38,7 +38,7 @@ bookmarkRouter
 			.then(bookmark =>
 				res
 					.status(201)
-					.location(`/bookmarks/${bookmark.id}`)
+					.location(`/bookmark/${bookmark.id}`)
 					.json(bookmark)
 			)
 			.catch(next);
@@ -65,6 +65,29 @@ bookmarkRouter
 	.delete((req, res, next) => {
 		BookmarkService.deleteBookmark(req.app.get('db'), req.params.bookmark_id)
 			.then(() => {
+				res.status(204).end();
+			})
+			.catch(next);
+	})
+	.patch(jsonParser, (req, res, next) => {
+		const { title, url, description, rating } = req.body;
+		const updateBookmark = { title, url, description, rating };
+		const numberOfValues = Object.values(updateBookmark).filter(Boolean).length;
+
+		if (numberOfValues === 0) {
+			return res.status(400).json({
+				error: {
+					message: `Request must contain 'title', 'url', 'description', or 'rating'`
+				}
+			});
+		}
+
+		BookmarkService.updateBookmark(
+			req.app.get('db'),
+			req.params.bookmark_id,
+			updateBookmark
+		)
+			.then(numRowsAffected => {
 				res.status(204).end();
 			})
 			.catch(next);
