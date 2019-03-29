@@ -25,6 +25,7 @@ describe('Bookmark Endpoints', function() {
 			it('responds with 200 and an empty list', () => {
 				return supertest(app)
 					.get('/api/bookmark')
+					.set('Authorization', `Bearer ${process.env.API_TOKEN}`)
 					.expect(200, []);
 			});
 		});
@@ -39,6 +40,7 @@ describe('Bookmark Endpoints', function() {
 			it('responds with 200 and all of the bookmarks', () => {
 				return supertest(app)
 					.get('/api/bookmark')
+					.set('Authorization', `Bearer ${process.env.API_TOKEN}`)
 					.expect(200, testBookmarks);
 			});
 		});
@@ -50,6 +52,7 @@ describe('Bookmark Endpoints', function() {
 				const bookmarkId = 123456;
 				return supertest(app)
 					.get(`/api/bookmark/${bookmarkId}`)
+					.set('Authorization', `Bearer ${process.env.API_TOKEN}`)
 					.expect(404, { error: { message: `Bookmark doesn't exist` } });
 			});
 		});
@@ -62,17 +65,19 @@ describe('Bookmark Endpoints', function() {
 			});
 
 			it('responds with 200 and the specified bookmark', () => {
-				const bookmarkId = 2;
+				const bookmarkId = 3;
 				const expectedBookmark = testBookmarks[bookmarkId - 1];
+
 				return supertest(app)
 					.get(`/api/bookmark/${bookmarkId}`)
+					.set('Authorization', `Bearer ${process.env.API_TOKEN}`)
 					.expect(200, expectedBookmark);
 			});
 		});
 	});
 
 	describe('POST /api/bookmark', () => {
-		it('creates a bookmark, responding with 201 and the new bookmark', function() {
+		it('creates a bookmark, responding with 201 and the new bookmark', () => {
 			const newBookmark = {
 				title: 'Test new bookmark',
 				url: 'test.com',
@@ -81,6 +86,7 @@ describe('Bookmark Endpoints', function() {
 			};
 			return supertest(app)
 				.post('/api/bookmark')
+				.set('Authorization', `Bearer ${process.env.API_TOKEN}`)
 				.send(newBookmark)
 				.expect(201)
 				.expect(res => {
@@ -89,9 +95,7 @@ describe('Bookmark Endpoints', function() {
 					expect(res.body.content).to.eql(newBookmark.content);
 					expect(res.body).to.have.property('id');
 					expect(res.headers.location).to.eql(`/api/bookmark/${res.body.id}`);
-				})
-				.then(postRes => supertest(app).get(`/api/bookmark/${postRes.body.id}`))
-				.expect(postRes.body);
+				});
 		});
 
 		const requiredFields = ['title', 'url', 'description', 'rating'];
@@ -103,10 +107,11 @@ describe('Bookmark Endpoints', function() {
 				description: 'test new bookmark description...',
 				rating: '5'
 			};
-			it(`responds with 400 and an error message when the '${field} is missing`, () => {
+			it(`responds with 400 and an error message when the '${field}' is missing`, () => {
 				delete newBookmark[field];
 				return supertest(app)
-					.post('/bookmarks')
+					.post('/api/bookmark')
+					.set('Authorization', `Bearer ${process.env.API_TOKEN}`)
 					.send(newBookmark)
 					.expect(400, {
 						error: { message: `Missing '${field}' in request body` }
@@ -121,6 +126,7 @@ describe('Bookmark Endpoints', function() {
 				const bookmarkId = 123456;
 				return supertest(app)
 					.patch(`/api/bookmark/${bookmarkId}`)
+					.set('Authorization', `Bearer ${process.env.API_TOKEN}`)
 					.expect(404, { error: { message: `Bookmark doesn't exist` } });
 			});
 		});
@@ -148,6 +154,7 @@ describe('Bookmark Endpoints', function() {
 
 				return supertest(app)
 					.patch(`/api/bookmark/${idToUpdate}`)
+					.set('Authorization', `Bearer ${process.env.API_TOKEN}`)
 					.send(updateBookmark)
 					.expect(204)
 					.then(res => {
@@ -162,6 +169,7 @@ describe('Bookmark Endpoints', function() {
 
 				return supertest(app)
 					.patch(`/api/bookmark/${idToUpdate}`)
+					.set('Authorization', `Bearer ${process.env.API_TOKEN}`)
 					.send({ requiredField: 'not supplied' })
 					.expect(400, {
 						error: {
@@ -181,6 +189,7 @@ describe('Bookmark Endpoints', function() {
 
 				return supertest(app)
 					.patch(`/api/bookmark/${idToUpdate}`)
+					.set('Authorization', `Bearer ${process.env.API_TOKEN}`)
 					.send({
 						...updateBookmark,
 						fieldToIgnore: 'Should be ignored COMPLETELY'
@@ -189,6 +198,7 @@ describe('Bookmark Endpoints', function() {
 					.then(res => {
 						supertest(app)
 							.get(`/api/bookmark/${idToUpdate}`)
+							.set('Authorization', `Bearer ${process.env.API_TOKEN}`)
 							.expect(expectedBookmark);
 					});
 			});

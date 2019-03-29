@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const xss = require('xss');
 const BookmarkService = require('./bookmarks-service');
@@ -38,7 +39,7 @@ bookmarkRouter
 			.then(bookmark =>
 				res
 					.status(201)
-					.location(`/bookmark/${bookmark.id}`)
+					.location(path.posix.join(req.originalUrl, `/${bookmark.id}`))
 					.json(bookmark)
 			)
 			.catch(next);
